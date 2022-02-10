@@ -24,27 +24,32 @@ def select_shortest_combination(coins, target):
 
         while True:
             this_combination = [highest_coin] * this_coin_count
-            remainder_combination = []
-            if remainder and valid_coins:
-                remainder_combination = select_shortest_combination(
+            this_combination.extend(
+                select_shortest_combination(
                     valid_coins,
                     remainder,
                 )
-            this_combination.extend(remainder_combination)
+                if remainder and valid_coins
+                else []
+            )
             if sum(this_combination) == target and (
                 not shortest_combination
                 or len(this_combination) < len(shortest_combination)
             ):
                 shortest_combination = this_combination
             this_coin_count -= 1
-            if not this_coin_count or not valid_coins:
+            if (
+                not this_coin_count
+                or not valid_coins
+                or (
+                    shortest_combination
+                    and len(shortest_combination)
+                    < this_coin_count + (remainder + highest_coin) // valid_coins[0]
+                )
+            ):
+                # any other combinations will be longer than what we have or
+                # no additional combinations can be made
                 break
             remainder += highest_coin
-            if (
-                shortest_combination
-                and len(shortest_combination)
-                < this_coin_count + divmod(remainder, valid_coins[0])[0]
-            ):
-                break
 
     return shortest_combination
